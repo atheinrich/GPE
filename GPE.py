@@ -1,5 +1,5 @@
 #####################################################################################
-# Quantum pendulum
+# Gross-Pitaevskii equation
 #
 # I use the split-step Fourier method with imaginary-time evolution to find the
 # ground state after assuming some ansatz, like a Gaussian.
@@ -9,8 +9,6 @@
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.linalg import eigh
-from tqdm import tqdm
 
 #####################################################################################
 # Parameters
@@ -63,28 +61,38 @@ def build_kinetic_and_potential():
 def build_ansatz():
     """ Defines and constructs a guess for the ground state as a 1D array. """
     
-    ψ_x = np.exp(x**2)
-    ψ_x /= np.sqrt(np.sum(np.abs(ψ_x)**2) * dx)
-    return ψ_x
+    ψ_up_x   = np.exp(x**2)
+    ψ_down_x = np.exp(x**2)
+    ψ_up_x   /= np.sqrt(np.sum(np.abs(ψ_up_x)**2) * dx)
+    ψ_down_x /= np.sqrt(np.sum(np.abs(ψ_down_x)**2) * dx)
+    return np.stack([ψ_up_x, ψ_down_x])
 
 def optimize_ansatz(ψ_x):
     """ Optimizes the ansatz with the split-step Fourier method and imaginary-time
         evolution via second-order Strang splitting. """
     
     for _ in range(n_steps):
+        ψ_up_x, ψ_down_x = ψ_x
         
         # Half of a step in momentum space
-        ψ_k = np.fft.fft(ψ_x)
-        ψ_k *= np.exp(-(K/ℏ) * (dt/2))
-        ψ_x = np.fft.ifft(ψ_k)
+        ψ_up_k = np.fft.fft(ψ_up_x)
+        ψ_up_k *= np.exp(-(K/ℏ) * (dt/2))
+        ψ_up_x = np.fft.ifft(ψ_up_k)
+        ψ_down_k = np.fft.fft(ψ_down_x)
+        ψ_down_k *= np.exp(-(K/ℏ) * (dt/2))
+        ψ_down_x = np.fft.ifft(ψ_down_k)
+        
         
         # Full step in position space
-        U_g = U + g*np.abs(ψ_x)**2
-        ψ_x *= np.exp(-(U_g/ℏ) * dt)
+        U_g = U + g * (np.abs(ψ_up_x)**2 + np.abs(ψ_down_x)**2)
+        ψ_up_x *= np.exp(-(U_g/ℏ) * dt)
+        ψ_down_x *= np.exp(-(U_g/ℏ) * dt)
         
         # Normalize
-        norm = np.sqrt(np.sum(np.abs(ψ_x)**2) * dx)
-        ψ_x /= norm
+        norm = np.sqrt(np.sum(np.abs(ψ_up_x)**2 + np.abs(ψ_down_x)**2) * dx)
+        ψ_up_x   /= norm
+        ψ_down_x /= norm
+        ψ_x = np.stack([ψ_up_x, ψ_down_x])
     
     return ψ_x
 
@@ -98,12 +106,13 @@ U, K     = build_kinetic_and_potential()
 
 #####################################################################################
 # Plot data
-plt.plot(x, np.abs(ψ_x)**2)
-plt.plot(x, U / np.max(U) * np.max(np.abs(ψ_x)**2), '--', label='U(x) scaled')
+plt.plot(x, np.abs(ψ_x[0])**2, label=r'$|\psi_\uparrow(x)|^2$')
+plt.plot(x, np.abs(ψ_x[1])**2, label=r'$|\psi_\downarrow(x)|^2$')
+plt.plot(x, U / np.max(U) * np.max(np.abs(ψ_x[0])**2), '--', label='U(x) scaled')
 
-plt.title('Ground State from Imaginary Time Evolution')
+plt.title('Spinor BEC Ground State (No SOC yet)')
 plt.xlabel(r'$x/\sqrt{ℏ/mω}$')
-plt.ylabel(r'$|\psi(x)|^2 \cdot \sqrt{ℏ/mω}$')
+plt.ylabel(r'Probability Density')
 
 plt.legend(loc='upper right')
 plt.grid()
