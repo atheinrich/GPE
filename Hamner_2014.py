@@ -1,5 +1,7 @@
 #####################################################################################
 # Gross-Pitaevskii equation
+# Models the mean-field Hamiltonian used in the Hamner/Engels paper.
+# Nature Communications volume 5, Article number: 4023 (2014)
 #
 # I use the split-step Fourier method with imaginary-time evolution to find the
 # ground state after assuming some ansatz, like a Gaussian.
