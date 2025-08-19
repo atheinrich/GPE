@@ -1,0 +1,11 @@
+# Bose-Einstein condensates with spin-orbit coupling
+The main goal here is to understand how a loosly packed set of cold bosons behaves when you couple their momentum to their spin.
+
+## Single-particle Hamiltonian
+In SOC_single_particle, I study the eigenstates of a harmonic oscillator with spin-orbit coupling and some other terms seen in experiment. This first-quantized Hamiltonian describes how a single particle in the BEC behaves in a harmonic trap with some Raman lasers targeted at their spin states. Neglecting particle-particle interactions, the SOC terms are shown to break the degeneracy of the spin states by shifting them in momentum space. In the Hartree-Fock approximation, we assume every particle in the BEC lies in the same linear combination of single-particle eigenstates. In this case, the particle-particle interactions are seen the broaden this many-body state into a sort of parabola, called the Thomas-Fermi distribution. In this script, I investigate how a large chemical potential requires many excited eigenstates to obtain that broadened profile.
+
+## Gross-Pitaevskii equation
+In Hamner_2014, I study a phase transition observed in the ground state of a two-component BEC under Raman dressing. After assuming the Hartree-Fock approximation, we can obtain the Gross-Pitaevkii equation by altering our focus from the second-quantized many-body states to their expectation values. This combined approach forgoes the intricate interactions and correlations that are paradigmatic of quantum mechanics, but it has a respectable track record at modeling real-life Bose-Einstein condensates. In this script, I solve the GP equation using a split-step Fourier method with imaginary-time evolution to find the semi-classical ground state for a range of parameters.
+
+## Future plans
+The main goal is to construct a second-quantized model that captures the mean-field dynamics while allowing beyond-mean-field analysis, ideally in a way that resembles the standard Dicke model. For a tractable analytical model, this requires the field operator to be truncated at some point. There are a couple possibilities for this; one relies on the projection of the Thomas-Fermi profile onto the single-particle eigenstates.
